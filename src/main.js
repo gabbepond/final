@@ -1,48 +1,81 @@
-// Select the profile icon and modal elements
-const profileIcon = document.getElementById('profileIcon');
-const profileFormModal = document.getElementById('profileFormModal');
-const closeModal = document.getElementById('closeModal');
-const profileForm = document.getElementById('profileForm');
+const moviesUL = document.querySelector('#results'); // Matches the #results container in index.html
+const newMovieTextBox = document.querySelector('#searchInput'); // Reusing the search input
+const newMovieBtn = document.querySelector('#theButton'); // Reuse the button for adding movies
 
-// Toggle modal visibility when the profile icon is clicked
-profileIcon.addEventListener('click', () => {
-  profileFormModal.classList.remove('hidden');
-});
+// Function to display movies in the list
+function displayMovies(movies) {
+  moviesUL.innerHTML = ''; // Clear the current list
+  movies.forEach((movie) => {
+    const movieLI = document.createElement('li');
+    movieLI.className = 'p-4 border border-gray-300 rounded shadow-md flex flex-col items-center';
 
-// Close the modal when the cancel button is clicked
-closeModal.addEventListener('click', () => {
-  profileFormModal.classList.add('hidden');
-});
+    // Use innerHTML to include movie details
+    movieLI.innerHTML = `
+      <h3 class="text-lg font-bold">${movie.title}</h3>
+      <p>Year: ${movie.year}</p>
+      <p>Rating: ${movie.rating || 'N/A'}</p>
+      <p>Genre: ${movie.genre || 'N/A'}</p>
+      <p>${movie.favorite ? '❤️ Favorite' : ''}</p>
+    `;
 
-// Handle form submission (save profile)
-profileForm.addEventListener('submit', (event) => {
-  event.preventDefault();
+    moviesUL.appendChild(movieLI);
+  });
+}
 
-  const avatar = document.getElementById('avatar').files[0];
-  const firstName = document.getElementById('firstName').value;
-  const lastName = document.getElementById('lastName').value;
+// Fetch movies and display them
+fetch('/api/getMovies')
+  .then((res) => res.json())
+  .then((data) => {
+    displayMovies(data);
+  })
+  .catch((error) => {
+    console.error('Error fetching movies:', error);
+    moviesUL.innerHTML = `<p class='text-red-500'>Error fetching movies. Please try again later.</p>`;
+  });
 
-  // For now, just log the details to the console
-  console.log('Avatar:', avatar);
-  console.log('First Name:', firstName);
-  console.log('Last Name:', lastName);
+// Add a new movie (e.g., to the database)
+newMovieBtn.addEventListener('click', () => {
+  const movieTitle = newMovieTextBox.value;
 
-  // Close the modal after saving the profile
-  profileFormModal.classList.add('hidden');
-});
-
-// Fetch movies function (keeps the existing functionality)
-const API_KEY = '8fca2581';
-
-const fetchMovies = async (title) => {
-  try {
-    const response = await fetch(`https://www.omdbapi.com/?apikey=${API_KEY}&s=${title}`);
-    const data = await response.json();
-    console.log(data.Search); // Movie results
-  } catch (error) {
-    console.error('Error fetching data:', error.message);
+  // Validate input
+  if (!movieTitle.trim()) {
+    alert('Please enter a valid movie title.');
+    return;
   }
-};
+
+  const myHeaders = new Headers();
+  myHeaders.append('Content-Type', 'application/json');
+
+  const requestBody = {
+    title: movieTitle,
+    imdbId: `tt${Math.floor(Math.random() * 1000000)}`, // Randomly generate a dummy IMDb ID
+    year: '2024',
+    description: 'Description goes here.',
+    genre: 'Action',
+    rating: 5, // Default rating
+    favorite: false,
+    userName: 'guest', // Default username
+  };
+
+  // Send POST request to add movie
+  fetch('/api/addMovie', {
+    method: 'POST',
+    body: JSON.stringify(requestBody),
+    headers: myHeaders,
+  })
+    .then((res) => res.json())
+    .then((newMovie) => {
+      // Append the new movie to the list
+      fetch('/api/getMovies')
+        .then((res) => res.json())
+        .then((data) => {
+          displayMovies(data);
+        });
+    })
+    .catch((error) => {
+      console.error('Error adding movie:', error);
+    });
+});
 
 // Example usage
 fetchMovies('Inception');
