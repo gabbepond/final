@@ -76,6 +76,3 @@ newMovieBtn.addEventListener('click', () => {
       console.error('Error adding movie:', error);
     });
 });
-
-// Example usage
-fetchMovies('Inception');

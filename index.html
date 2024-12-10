@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Movie Buff</title>
-    <script defer src="/src/main.js"></script>
+    <!-- <script defer src="/src/movie.js"></script> -->
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
@@ -55,12 +55,7 @@
         >
           &times;
         </button>
-        <img
-          id="popupPoster"
-          src=""
-          alt="Movie Poster"
-          class="w-full rounded mb-4"
-        />
+        <img id="popupPoster" src="" alt="" class="w-full rounded mb-4" />
         <p id="popupDescription" class="text-gray-700"></p>
       </div>
     </div>
@@ -104,14 +99,161 @@
       const API_KEY = "8fca2581";
       let currentPage = 1;
       const RESULTS_PER_PAGE = 10;
-      let watchlist = new Set(); // Store movies in the watchlist
-      let favoritelist = new Set();
-  
+      class Movie {
+        constructor(title, imdbId, year, description, genre, rating) {
+          this.title = title;
+          this.imdbId = imdbId;
+          this.year = year;
+          this.description = description;
+          this.genre = genre;
+          this.rating = rating;
+        }
+      }
+      let userprofile = new Set([
+        {
+          userId: "gpond",
+          name: "Gabbe Pond",
+          age: 25,
+          genre: "Action",
+          Likes: "Adam Sandler Movies, Scary Movies",
+          Dislikes: "Documentaries",
+        },
+      ]);
+      // Initialize a Set to store movies in the watchlist
+      //let watchlist = new Set();
+      let watchlist = new Set([
+        { title: "Happy Gilmore", year: 1996, genre: "Comedy" },
+        { title: "Murder Mystery", year: 2019, genre: "Comedy" },
+        { title: "The Hunger Games", year: 2012, genre: "Action, Drama" },
+        { title: "The Twilight Saga: Eclipse", year: 2010, genre: "Romance" },
+        { title: "A Quiet Place", year: 2018, genre: "Horror" },
+        { title: "The Fast and the Furious", year: 2001, genre: "Action" },
+      ]);
+      let favoritelist = new Set([
+        { title: "Happy Gilmore", year: 1996, genre: "Comedy" },
+        { title: "Grown Ups", year: 2010, genre: "Comedy" },
+        { title: "The Hunger Games", year: 2012, genre: "Action, Drama" },
+        { title: "The Twilight Saga: Eclipse", year: 2010, genre: "Romance" },
+        { title: "Smile", year: 2022, genre: "Horror" },
+        { title: "The Fast and the Furious", year: 2001, genre: "Action" },
+      ]);
+      function toggleBgColor(button) {
+        if (button.classList.contains("bg-blue-500")) {
+          button.classList.remove("bg-blue-500", "hover:bg-blue-700");
+          button.classList.add("bg-red-500", "hover:bg-red-700");
+        } else {
+          button.classList.remove("bg-red-500", "hover:bg-red-700");
+          button.classList.add("bg-blue-500", "hover:bg-blue-700");
+        }
+      }
+      // Function show user profile portal
+      const showUserprofilePortal = () => {
+        const popup = document.getElementById("moviePopup");
+        const popupPoster = document.getElementById("popupPoster");
+        const popupDescription = document.getElementById("popupDescription");
+        const popupList = document.getElementById("userProfilePopup");
+        // Clear previous content in the popup
+        popupDescription.innerHTML = "";
+
+        if (userprofile.size === 0) {
+          popupDescription.textContent = "Your user profile is empty!";
+        } else {
+          // Add a title for the watchlist
+          const title = document.createElement("h3");
+          title.textContent = "User Profile";
+          title.className = "text-lg font-bold mb-4";
+          popupDescription.appendChild(title);
+
+          const ul = document.createElement("ul");
+          ul.className = "list-none space-y-1 px-4";
+
+          userprofile.forEach((user) => {
+            const li = document.createElement("li");
+            li.innerHTML = `ID: ${user.userId}<br>Name: ${user.name}<br>Age: ${user.age}<br>Genre: ${user.genre}<br>Likes: ${user.Likes}<br>Dislikes: ${user.Dislikes}`;
+
+            ul.appendChild(li);
+          });
+
+          popupDescription.appendChild(ul);
+        }
+
+        popupPoster.src = ""; // Clear the poster for this modal
+        popup.classList.remove("hidden");
+      };
+      // Function to show the watchlist portal
+      const showWatchlistPortal = () => {
+        const popup = document.getElementById("moviePopup");
+        const popupPoster = document.getElementById("popupPoster");
+        const popupDescription = document.getElementById("popupDescription");
+        const popupList = document.getElementById("listPopup");
+        // Clear previous content in the popup
+        popupDescription.innerHTML = "";
+
+        if (watchlist.size === 0) {
+          popupDescription.textContent = "Your watchlist is empty!";
+        } else {
+          // Add a title for the watchlist
+          const title = document.createElement("h3");
+          title.textContent = "Watch List";
+          title.className = "text-lg font-bold mb-4";
+          popupDescription.appendChild(title);
+
+          const ul = document.createElement("ul");
+          ul.className = "list-disc space-y-2 px-4";
+
+          console.log("wl", watchlist);
+          watchlist.forEach((movie) => {
+            console.log("popup watchlist movie:", movie);
+            const li = document.createElement("li");
+            li.textContent = `${movie.title} (${movie.year}) - ${movie.genre}`;
+            ul.appendChild(li);
+          });
+
+          popupDescription.appendChild(ul);
+        }
+
+        popupPoster.src = ""; // Clear the poster for this modal
+        popup.classList.remove("hidden");
+      };
+      const showFavoritelistPortal = () => {
+        const popup = document.getElementById("moviePopup");
+        const popupPoster = document.getElementById("popupPoster");
+        const popupDescription = document.getElementById("popupDescription");
+
+        // Clear previous content in the popup
+        popupDescription.innerHTML = "";
+
+        if (favoritelist.size === 0) {
+          popupDescription.textContent = "Your favoritelist is empty!";
+        } else {
+          // Add a title for the favoritelist
+          const title = document.createElement("h3");
+          title.textContent = "Favorites";
+          title.className = "text-lg font-bold mb-4";
+          popupDescription.appendChild(title);
+
+          const ul = document.createElement("ul");
+          ul.className = "list-disc space-y-2 px-4";
+
+          favoritelist.forEach((movie) => {
+            console.log("popup favoritelist movie:", movie);
+            const li = document.createElement("li");
+            li.textContent = `${movie.title} (${movie.year}) - ${movie.genre}`;
+            ul.appendChild(li);
+          });
+
+          popupDescription.appendChild(ul);
+        }
+
+        popupPoster.src = ""; // Clear the poster for this modal
+        popup.classList.remove("hidden");
+      };
+
       document.addEventListener("DOMContentLoaded", () => {
         const movieIcon = document.getElementById("movieIcon");
         const dropdownMenu = document.getElementById("dropdownMenu");
 
-        // Toggle dropdown visibility when the movieIcon is clicked
+        // Toggle dropdown on movieIcon click
         movieIcon.addEventListener("click", () => {
           dropdownMenu.classList.toggle("hidden");
         });
@@ -126,26 +268,25 @@
           }
         });
 
-        // Add event listeners for dropdown options
         document
           .getElementById("watchlistOption")
           .addEventListener("click", () => {
             console.log("Watchlist clicked");
-            // Add your functionality for Watchlist here
+            // Add functionality for Watchlist here
           });
 
         document
           .getElementById("favoritesOption")
           .addEventListener("click", () => {
             console.log("Favorites clicked");
-            // Add your functionality for Favorites here
+            // Add functionality for Favorites here
           });
 
         document
           .getElementById("profileOption")
           .addEventListener("click", () => {
             console.log("User Profile clicked");
-            // Add your functionality for User Profile here
+            // Add functionality for User Profile here
           });
       });
       // Function to fetch movies for a specific year
@@ -196,15 +337,15 @@
           movieDiv.innerHTML = `<img src="${movie.Poster}" alt="${
             movie.Title
           }" class="w-32 h-48 object-cover mb-4 movie-poster"/>
+
         <div class="text-center">
+            
         <h3 class="text-lg font-bold">${movie.Title}</h3>
         <p class="text-gray-600">Year: ${movie.Year}</p>
-        <button class="toggle-watchlist-btn bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
-            ${
-              watchlist.has(movie.imdbID) ? "Remove Watchlist" : "Add Watchlist"
-            }
+        <button class="toggle-watchlist-btn bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded" onclick="toggleBgColor(this)">
+        ${watchlist.has(movie.imdbID) ? "Remove Watchlist" : "Watchlist"}
         </button>
-        <button class="favorite-btn bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
+        <button class="favorite-btn bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded" onclick="toggleBgColor(this)">
             Favorite
         </button>
          <div class="mt-2">
@@ -227,13 +368,19 @@
               e.stopPropagation(); // Prevent modal from opening when button is clicked
               toggleWatchlist(movie);
             });
-
+            movieDiv
+            .querySelector(".toggle-watchlist-btn")
+            .addEventListener("click", (e) => {
+              e.stopPropagation(); // Prevent modal from opening when button is clicked
+              togglefavorites(movie);
+            });
           // Add event listener to movie poster
           movieDiv
             .querySelector(".movie-poster")
             .addEventListener("click", () => {
               showPopup(movie.Poster, movie.imdbID);
             });
+
           // Add event listeners for rating
           const stars = movieDiv.querySelectorAll(".star");
           stars.forEach((star) => {
@@ -272,14 +419,20 @@
         prevButton.onclick = () => {
           if (currentPage > 1) {
             currentPage--;
-            fetchMovies("2024", currentPage);
+            let searchInput = document.getElementById("searchInput").value;
+            console.log("search:", searchInput);
+            if (searchInput === "") searchInput = "2024";
+            fetchMovies(searchInput, currentPage);
           }
         };
 
         nextButton.onclick = () => {
           if (currentPage < totalPages) {
             currentPage++;
-            fetchMovies("2024", currentPage);
+            let searchInput = document.getElementById("searchInput").value;
+            console.log("search:", searchInput);
+            if (searchInput === "") searchInput = "2024";
+            fetchMovies(searchInput, currentPage);
           }
         };
       };
@@ -304,9 +457,12 @@
 
         popup.classList.remove("hidden");
       };
-
       const closePopup = () => {
         const popup = document.getElementById("moviePopup");
+        popup.classList.add("hidden");
+      };
+      const closeListPopup = () => {
+        const popup = document.getElementById("listPopup");
         popup.classList.add("hidden");
       };
 
@@ -327,7 +483,80 @@
           .getElementById("closePopup")
           .addEventListener("click", closePopup);
       });
+      // Update the "Watchlist" menu option functionality
+      document
+        .getElementById("watchlistOption")
+        .addEventListener("click", () => {
+          console.log("showwatchlistportal click");
+          showWatchlistPortal();
+        });
+      //here
+      document.getElementById("profileOption").addEventListener("click", () => {
+        console.log("showwatchlistportal click");
+        showUserprofilePortal();
+      });
+      // Close popup event listener
+      document.getElementById("closePopup").addEventListener("click", () => {
+        const popup = document.getElementById("moviePopup");
+        popup.classList.add("hidden");
+      });
+      document
+        .getElementById("favoritesOption")
+        .addEventListener("click", () => {
+          console.log("showfavoritelistportal click here");
+          showFavoritelistPortal();
+        });
+      const toggleWatchlist = (movie) => {
+        console.log("togglewatchlist", movie);
+        // if (watchlist.has(movie.imdbId)) {
+        //     console.log("delete");
+        //   watchlist.delete(movie.imdbId); // Remove from watchlist
+        // } else {
+        console.log("add");
+        //watchlist.add(movie.imdbId); // Add to watchlist
+        // }
+        updateWatchlistDisplay();
+      };
+      const togglefavorites = (movie) => {
+        console.log("togglewatchlist", movie);
+        // if (watchlist.has(movie.imdbId)) {
+        //     console.log("delete");
+        //   watchlist.delete(movie.imdbId); // Remove from watchlist
+        // } else {
+        console.log("add");
+        //watchlist.add(movie.imdbId); // Add to watchlist
+        // }
+        updateFavoritsDisplay();
+      };
+      // Function to update the display of watchlist status
+      const updateWatchlistDisplay = () => {
+        // This function can update the UI to reflect the current state of the watchlist
+        console.log(`Watchlist updated. Current size: ${watchlist.size}`);
+      };
+      document.addEventListener("DOMContentLoaded", () => {
+        const userProfileIcon = document.getElementById("profileIcon");
+        const userProfilePopup = document.getElementById("userProfilePopup");
+        const closeUserProfilePopup = document.getElementById(
+          "closeUserProfilePopup"
+        );
+
+        // Show the user profile popup when profile icon is clicked
+        userProfileIcon.addEventListener("click", () => {
+          userProfilePopup.classList.remove("hidden");
+        });
+
+        // Close the user profile popup when the close button is clicked
+        closeUserProfilePopup.addEventListener("click", () => {
+          userProfilePopup.classList.add("hidden");
+        });
+
+        // Handle Edit Profile button- maybe open a new modal or form
+        document
+          .getElementById("editProfileBtn")
+          .addEventListener("click", () => {
+            alert("Edit Profile clicked!"); // Implement your edit profile logic here
+          });
+      });
     </script>
   </body>
 </html>
-
