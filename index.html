@@ -65,7 +65,6 @@
       </div>
     </div>
 
-    
     <div class="absolute top-4 left-4">
       <img
         src="/movie-icon2.png"
@@ -105,8 +104,9 @@
       const API_KEY = "8fca2581";
       let currentPage = 1;
       const RESULTS_PER_PAGE = 10;
-      let watchlist = new Set(); // Store imdbIds of movies in the watchlist
+      let watchlist = new Set(); // Store movies in the watchlist
       let favoritelist = new Set();
+  
       document.addEventListener("DOMContentLoaded", () => {
         const movieIcon = document.getElementById("movieIcon");
         const dropdownMenu = document.getElementById("dropdownMenu");
@@ -190,21 +190,34 @@
         resultsContainer.className = "grid grid-cols-2 gap-4";
 
         movies.forEach((movie) => {
-            
-        const movieDiv = document.createElement("div");
-        movieDiv.className = "p-4 border border-gray-300 rounded shadow-md flex flex-col items-center cursor-pointer";
-        movieDiv.innerHTML = `<img src="${movie.Poster}" alt="${movie.Title}" class="w-32 h-48 object-cover mb-4 movie-poster"/>
+          const movieDiv = document.createElement("div");
+          movieDiv.className =
+            "p-4 border border-gray-300 rounded shadow-md flex flex-col items-center cursor-pointer";
+          movieDiv.innerHTML = `<img src="${movie.Poster}" alt="${
+            movie.Title
+          }" class="w-32 h-48 object-cover mb-4 movie-poster"/>
         <div class="text-center">
         <h3 class="text-lg font-bold">${movie.Title}</h3>
         <p class="text-gray-600">Year: ${movie.Year}</p>
         <button class="toggle-watchlist-btn bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
             ${
-            watchlist.has(movie.imdbID) ? "Remove Watchlist" : "Add Watchlist"
+              watchlist.has(movie.imdbID) ? "Remove Watchlist" : "Add Watchlist"
             }
         </button>
         <button class="favorite-btn bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
             Favorite
         </button>
+         <div class="mt-2">
+          <span class="text-sm text-gray-600">Rate this movie:</span>
+          <div class="rating flex justify-center mt-1">
+            ${[1, 2, 3, 4, 5]
+              .map(
+                (star) =>
+                  `<span class="star text-gray-400 cursor-pointer" data-value="${star}">★</span>`
+              )
+              .join("")}
+          </div>
+        </div>
         </div>`;
 
           // Add event listener to toggle button
@@ -221,6 +234,22 @@
             .addEventListener("click", () => {
               showPopup(movie.Poster, movie.imdbID);
             });
+          // Add event listeners for rating
+          const stars = movieDiv.querySelectorAll(".star");
+          stars.forEach((star) => {
+            star.addEventListener("click", (e) => {
+              const rating = e.target.dataset.value;
+              stars.forEach((s) => {
+                s.classList.remove("text-yellow-500");
+                s.classList.add("text-gray-400");
+              });
+              for (let i = 0; i < rating; i++) {
+                stars[i].classList.add("text-yellow-500");
+                stars[i].classList.remove("text-gray-400");
+              }
+              console.log(`Rated ${movie.Title}: ${rating} stars`);
+            });
+          });
 
           resultsContainer.appendChild(movieDiv);
         });
@@ -302,5 +331,3 @@
   </body>
 </html>
 
-
- 
